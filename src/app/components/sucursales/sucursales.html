@@ -1,1 +1,9 @@
-<p>sucursales works!</p>
+<body>
+    <h1>Nuestras Sucursales</h1>
+    <ul>
+    @for (s of suc; track s.id){
+    <li> {{s.id}} : ({{s.nEmp}} Empl) Dir: {{s.dir}}</li>
+    }
+    </ul>
+    
+    </body>

@@ -1,1 +1,23 @@
-<p>ventas works!</p>
+<body>
+    <h1>Ventas Mensuales Por Sucursal</h1>
+    
+    <table>
+    <tr>
+        @for(s of suc;track s){<th>{{s}}</th>}
+    </tr>    
+    @for(m of mes;track m;let i = $index){
+    <tr><th> {{m}}</th>
+    
+    @for ( v of datos[i]; track v; let c= $index){
+    <td> {{v}}</td>
+    
+    }
+    
+    </tr>
+    
+    }
+    
+    
+    
+    </table>
+    </body>

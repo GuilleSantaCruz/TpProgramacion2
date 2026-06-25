@@ -1,1 +1,9 @@
-<p>clientes works!</p>
+<body>
+    <h1>Listado clientes </h1>
+    <ul>
+    @for (cl of clients; track cl.apel){
+    <li>{{cl.Apel}} , {{cl.Nombre}} Status : @if(cl.Activo) {<span style ="text-align:center;color:yellow;background-color:green"> ✓</span>} @else {<span style ="text-align:center;color:yellow;background-color:red"> X</span>}</li>
+        
+    }
+    </ul>
+    </body>
