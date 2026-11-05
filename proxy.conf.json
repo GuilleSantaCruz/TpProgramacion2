@@ -1,0 +1,6 @@
+{
+  "/facturacion.php": {
+    "target": "http://localhost:8000",
+    "secure": false
+  }
+}

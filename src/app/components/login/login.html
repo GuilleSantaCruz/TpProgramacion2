@@ -1,0 +1,31 @@
+<main class="login-page">
+  <section class="login-card" aria-labelledby="login-title">
+    <p class="marca">Mi Empresa</p>
+    <h1 id="login-title">Iniciar sesión</h1>
+    <p>Completá tus datos para ingresar.</p>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <label for="usuario">Usuario / categoría</label>
+      <input id="usuario" type="text" inputmode="numeric" autocomplete="username"
+        formControlName="userName" aria-describedby="usuario-ayuda">
+      @if (form.controls.userName.touched && form.controls.userName.invalid) {
+        <p class="error" role="alert">Ingresá un número del 0 al 11, sin ceros iniciales.</p>
+      }
+      <label for="clave">Contraseña</label>
+      <input id="clave" type="password" autocomplete="current-password" formControlName="password">
+      @if (form.controls.password.touched && form.controls.password.invalid) {
+        <p class="error" role="alert">La contraseña es obligatoria.</p>
+      }
+      @if (error) { <p class="error" role="alert">{{ error }}</p> }
+      <button type="submit" [disabled]="enviando">{{ enviando ? 'Ingresando...' : 'Ingresar' }}</button>
+    </form>
+    <aside id="usuario-ayuda">
+      <strong>Login simulado de clase</strong>
+      <ul>
+        <li>0 a 9: usuario normal</li>
+        <li>10: administrador</li>
+        <li>11: superusuario</li>
+      </ul>
+      <p>Usá cualquier contraseña no vacía. La sesión se mantiene al recargar; usá «Cerrar sesión» para salir.</p>
+    </aside>
+  </section>
+</main>

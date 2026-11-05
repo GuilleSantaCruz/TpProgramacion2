@@ -1,9 +1,65 @@
-<body>
-    <h1>Listado clientes </h1>
-    <ul>
-    @for (cl of clients; track cl.apel){
-    <li>{{cl.Apel}} , {{cl.Nombre}} Status : @if(cl.Activo) {<span style ="text-align:center;color:yellow;background-color:green"> ✓</span>} @else {<span style ="text-align:center;color:yellow;background-color:red"> X</span>}</li>
-        
+<h1>Listado de clientes</h1>
+
+@if (auth.puedeCrearClientes) {
+  <section class="alta-cliente" aria-labelledby="alta-titulo">
+    <h2 id="alta-titulo">Crear cliente</h2>
+    <form [formGroup]="form" (ngSubmit)="crearCliente()">
+      <fieldset [disabled]="guardando || cargando">
+        <legend>Datos del nuevo cliente</legend>
+        <label for="nombre-cliente">Nombre</label>
+        <input id="nombre-cliente" formControlName="nombre" maxlength="50" autocomplete="given-name">
+        @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+          <small>Ingresá un nombre de hasta 50 caracteres.</small>
+        }
+        <label for="apellido-cliente">Apellido</label>
+        <input id="apellido-cliente" formControlName="apellido" maxlength="50" autocomplete="family-name">
+        @if (form.controls.apellido.touched && form.controls.apellido.invalid) {
+          <small>Ingresá un apellido de hasta 50 caracteres.</small>
+        }
+        <label for="dni-cliente">DNI</label>
+        <input id="dni-cliente" formControlName="dni" inputmode="numeric" maxlength="8">
+        @if (form.controls.dni.touched && form.controls.dni.invalid) {
+          <small>Ingresá de 1 a 8 dígitos, sin puntos ni ceros iniciales.</small>
+        }
+        <label for="situacion-cliente">Situación fiscal</label>
+        <select id="situacion-cliente" formControlName="situacionFiscal">
+          @for (situacion of situaciones; track situacion) {
+            <option [value]="situacion">{{ situacion }}</option>
+          }
+        </select>
+        <button type="submit">{{ guardando ? 'Guardando...' : 'Guardar cliente' }}</button>
+      </fieldset>
+    </form>
+  </section>
+}
+@if (mensaje) { <p role="status">{{ mensaje }}</p> }
+@if (error) { <p role="alert">{{ error }}</p> }
+@if (cargando) { <p>Cargando clientes...</p> }
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Apellido</th>
+      <th>DNI</th>
+      <th>Situación fiscal</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    @for (cliente of clients; track cliente.idCliente) {
+      <tr>
+        <td>{{ cliente.idCliente }}</td>
+        <td>{{ cliente.nombre }}</td>
+        <td>{{ cliente.apellido }}</td>
+        <td>{{ cliente.dni }}</td>
+        <td>{{ cliente.situacionFiscal }}</td>
+      </tr>
+    } @empty {
+      <tr>
+        <td colspan="5">{{ cargando ? 'Cargando...' : 'No hay clientes para mostrar.' }}</td>
+      </tr>
     }
-    </ul>
-    </body>
+  </tbody>
+</table>

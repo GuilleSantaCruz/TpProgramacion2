@@ -28,3 +28,10 @@
 .navbar a:hover {
   background-color: #334155;
 }
+
+.navbar, .navbar nav { flex-wrap: wrap; gap: 16px; }
+.navbar nav { align-items: center; }
+.navbar h2 { margin: 0 0 6px; }
+.navbar button { padding: 10px 15px; border: 1px solid #94a3b8; border-radius: 8px; background: transparent; color: white; font: inherit; cursor: pointer; }
+.navbar button:hover { background: #334155; }
+.navbar a:focus-visible, .navbar button:focus-visible { outline: 3px solid #93c5fd; outline-offset: 2px; }

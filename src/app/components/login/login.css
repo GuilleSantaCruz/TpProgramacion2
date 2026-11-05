@@ -1,0 +1,13 @@
+:host { display: block; font-family: Arial, sans-serif; color: #1e293b; }
+.login-page { min-height: 85vh; display: grid; place-items: center; padding: 24px; background: #f1f5f9; }
+.login-card { width: 100%; max-width: 420px; box-sizing: border-box; padding: 32px; background: white; border: 1px solid #e2e8f0; border-radius: 16px; }
+.marca { color: #475569; font-weight: bold; }
+h1 { margin-bottom: 8px; }
+form { display: grid; gap: 10px; margin: 24px 0; }
+label { font-weight: 600; }
+input { min-width: 0; padding: 12px; border: 1px solid #94a3b8; border-radius: 8px; font: inherit; }
+button { margin-top: 12px; padding: 12px; border: 0; border-radius: 8px; color: white; background: #1e40af; font: inherit; cursor: pointer; }
+input:focus-visible, button:focus-visible { outline: 3px solid #60a5fa; outline-offset: 2px; }
+aside { padding: 16px; background: #eff6ff; border-radius: 8px; font-size: 14px; line-height: 1.5; }
+aside p { margin-bottom: 0; }
+.error { margin: 0 0 8px; color: #b91c1c; font-size: 14px; }

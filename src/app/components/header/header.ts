@@ -1,10 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { AuthService } from '../../auth/auth.service';
 import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterLink],
+  imports: [RouterLink, AsyncPipe],
   templateUrl: './header.html',
   styleUrl: './header.css',
 })
-export class HeaderComponent {}
+export class HeaderComponent {
+  protected auth = inject(AuthService);
+  protected isLoggedIn$ = this.auth.isLoggedIn;
+}

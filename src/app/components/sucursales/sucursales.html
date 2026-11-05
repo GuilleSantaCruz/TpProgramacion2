@@ -1,9 +1,12 @@
-<body>
-    <h1>Nuestras Sucursales</h1>
-    <ul>
-    @for (s of suc; track s.id){
-    <li> {{s.id}} : ({{s.nEmp}} Empl) Dir: {{s.dir}}</li>
-    }
-    </ul>
-    
-    </body>
+<h1>Nuestras sucursales</h1>
+
+<ul>
+  @for (s of suc; track s.idSucursal) {
+    <li>
+      <strong>{{ s.nombre }}</strong>
+      — {{ s.ciudad }}
+      — Dirección: {{ s.direccion }}
+      — Empleados: {{ s.cantempleado }}
+    </li>
+  }
+</ul>

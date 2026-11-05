@@ -1,19 +1,24 @@
-<header class="navbar">
-  <h2>Mi Empresa</h2>
-
-  <nav>
-    <a routerLink="">Inicio</a>
-
-    <a routerLink="/sucursales">
-      Nuestras sucursales
-    </a>
-
-    <a routerLink="/clientes">
-      Ver clientes
-    </a>
-
-    <a routerLink="/ventas">
-      Ver ventas
-    </a>
-  </nav>
-</header>
+@if (isLoggedIn$ | async; as usuario) {
+  <header class="navbar">
+    <div>
+      <h2>Mi Empresa</h2>
+      <span>{{ auth.categoria(usuario) }} · Usuario {{ usuario }}</span>
+    </div>
+    <nav aria-label="Navegación principal">
+      <a routerLink="/">Inicio</a>
+      <a routerLink="/sucursales">Nuestras sucursales</a>
+      <a routerLink="/clientes">Ver clientes</a>
+      <a routerLink="/ventas">Ver ventas</a>
+      @if (usuario === '10') {
+        <a routerLink="/Jefe">Opc. Administrador</a>
+      }
+      @if (usuario === '11') {
+        <a routerLink="/Jefe">Opc. Superusuario</a>
+      }
+      <button type="button" (click)="auth.logout()">Cerrar sesión</button>
+    </nav>
+  </header>
+  @if (auth.errorLogout | async; as error) {
+    <p role="alert">{{ error }}</p>
+  }
+}
