@@ -4,8 +4,9 @@ import { provideHttpClientTesting, HttpTestingController } from '@angular/common
 import { provideRouter, Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { Observable, firstValueFrom } from 'rxjs';
 import { AuthService } from './auth.service';
-import { authGuard, superiorGuard } from './auth.guard';
+import { authGuard } from './auth.guard';
 import { ClientesComponent } from '../components/clientes/clientes';
+import { HeaderComponent } from '../components/header/header';
 
 const cliente = { idCliente: 44, nombre: 'Ana', apellido: 'Prueba', dni: 12345678, situacionFiscal: 'Consumidor Final' };
 
@@ -25,6 +26,18 @@ describe('Sesión PHP y alta de clientes', () => {
     http.expectOne('/facturacion.php?accion=login').flush({ usuario, csrf: 'token-prueba' });
   }
 
+  it('mantiene solo las cuatro secciones de empresa para todas las categorías', () => {
+    const fixture = TestBed.createComponent(HeaderComponent);
+    fixture.detectChanges();
+    for (const usuario of ['0', '10', '11']) {
+      login(usuario);
+      fixture.detectChanges();
+      const enlaces = Array.from(fixture.nativeElement.querySelectorAll('nav a')) as HTMLAnchorElement[];
+      expect(enlaces.map(enlace => enlace.textContent?.trim())).toEqual(['Inicio', 'Sucursales', 'Clientes', 'Ventas']);
+      expect(fixture.nativeElement.textContent).not.toContain('Opc.');
+    }
+  });
+
   it('solo inicia sesión cuando PHP confirma y conserva el usuario cero', () => {
     auth.login({ userName: '0', password: 'ejemplo' }).subscribe();
     expect(auth.usuarioActual).toBe('');
@@ -33,8 +46,8 @@ describe('Sesión PHP y alta de clientes', () => {
     expect(auth.puedeCrearClientes).toBe(false);
   });
 
-  it('restaura una sesión al navegar y comprueba la categoría en Jefe', async () => {
-    const resultado = TestBed.runInInjectionContext(() => superiorGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
+  it('restaura una sesión al navegar y conserva los permisos de administrador', async () => {
+    const resultado = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
     const promesa = firstValueFrom(resultado as Observable<unknown>);
     http.expectOne('/facturacion.php?accion=sesion').flush({ usuario: '10', csrf: 'token' });
     expect(await promesa).toBe(true);

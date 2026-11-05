@@ -1,65 +1,75 @@
-<h1>Listado de clientes</h1>
+<main class="page">
+  <div class="page-heading">
+    <div><p class="eyebrow">Relaciones comerciales</p><h1>Clientes</h1><p>La información de tus clientes, organizada y siempre a mano.</p></div>
+    @if (!cargando) { <span class="badge">{{ clients.length }} clientes registrados</span> }
+  </div>
 
-@if (auth.puedeCrearClientes) {
-  <section class="alta-cliente" aria-labelledby="alta-titulo">
-    <h2 id="alta-titulo">Crear cliente</h2>
-    <form [formGroup]="form" (ngSubmit)="crearCliente()">
-      <fieldset [disabled]="guardando || cargando">
-        <legend>Datos del nuevo cliente</legend>
-        <label for="nombre-cliente">Nombre</label>
-        <input id="nombre-cliente" formControlName="nombre" maxlength="50" autocomplete="given-name">
-        @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
-          <small>Ingresá un nombre de hasta 50 caracteres.</small>
-        }
-        <label for="apellido-cliente">Apellido</label>
-        <input id="apellido-cliente" formControlName="apellido" maxlength="50" autocomplete="family-name">
-        @if (form.controls.apellido.touched && form.controls.apellido.invalid) {
-          <small>Ingresá un apellido de hasta 50 caracteres.</small>
-        }
-        <label for="dni-cliente">DNI</label>
-        <input id="dni-cliente" formControlName="dni" inputmode="numeric" maxlength="8">
-        @if (form.controls.dni.touched && form.controls.dni.invalid) {
-          <small>Ingresá de 1 a 8 dígitos, sin puntos ni ceros iniciales.</small>
-        }
-        <label for="situacion-cliente">Situación fiscal</label>
-        <select id="situacion-cliente" formControlName="situacionFiscal">
-          @for (situacion of situaciones; track situacion) {
-            <option [value]="situacion">{{ situacion }}</option>
+  @if (auth.puedeCrearClientes) {
+    <details class="entry-panel">
+      <summary>＋ Nuevo cliente</summary>
+      <form [formGroup]="form" (ngSubmit)="crearCliente()">
+        <fieldset [disabled]="guardando || cargando || borrando">
+          <legend>Completá los datos para incorporar un cliente.</legend>
+          <div class="form-grid">
+            <div><label for="nombre-cliente">Nombre</label>
+              <input id="nombre-cliente" formControlName="nombre" maxlength="50" autocomplete="given-name" placeholder="Nombre">
+              @if (form.controls.nombre.touched && form.controls.nombre.invalid) { <small class="field-error">Ingresá un nombre de hasta 50 caracteres.</small> }
+            </div>
+            <div><label for="apellido-cliente">Apellido</label>
+              <input id="apellido-cliente" formControlName="apellido" maxlength="50" autocomplete="family-name" placeholder="Apellido">
+              @if (form.controls.apellido.touched && form.controls.apellido.invalid) { <small class="field-error">Ingresá un apellido de hasta 50 caracteres.</small> }
+            </div>
+            <div><label for="dni-cliente">DNI</label>
+              <input id="dni-cliente" formControlName="dni" inputmode="numeric" maxlength="8" placeholder="Sin puntos">
+              @if (form.controls.dni.touched && form.controls.dni.invalid) { <small class="field-error">Ingresá de 1 a 8 dígitos, sin puntos ni ceros iniciales.</small> }
+            </div>
+            <div><label for="situacion-cliente">Situación fiscal</label>
+              <select id="situacion-cliente" formControlName="situacionFiscal">
+                @for (situacion of situaciones; track situacion) { <option [value]="situacion">{{ situacion }}</option> }
+              </select>
+            </div>
+          </div>
+          <div class="form-actions"><button type="submit">{{ guardando ? 'Guardando...' : 'Guardar cliente' }}</button></div>
+        </fieldset>
+      </form>
+    </details>
+  }
+  @if (mensaje) { <p class="notice success" role="status">{{ mensaje }}</p> }
+  @if (error) { <p class="notice error" role="alert">{{ error }}</p> }
+
+  <section class="panel" aria-labelledby="directorio-clientes">
+    <div class="panel-heading"><div><h2 id="directorio-clientes">Directorio de clientes</h2><p>Datos personales y situación fiscal.</p></div><span class="badge">Clientes</span></div>
+    <p class="scroll-hint">Deslizá la tabla para ver toda la información →</p>
+    <div class="table-scroll" tabindex="0" role="region" aria-label="Tabla de clientes">
+      <table>
+        <thead><tr><th scope="col">ID</th><th scope="col">Nombre</th><th scope="col">Apellido</th><th scope="col">DNI</th><th scope="col">Situación fiscal</th>
+          @if (auth.puedeBorrarClientes) { <th scope="col">Acciones</th> }
+        </tr></thead>
+        <tbody>
+          @for (cliente of clients; track cliente.idCliente) {
+            <tr>
+              <td class="muted">#{{ cliente.idCliente }}</td><td><strong>{{ cliente.nombre }}</strong></td><td>{{ cliente.apellido }}</td><td class="documento">{{ cliente.dni }}</td>
+              <td><span class="fiscal">{{ cliente.situacionFiscal }}</span></td>
+              @if (auth.puedeBorrarClientes) {
+                <td>
+                  <button class="danger small-button" type="button" [disabled]="guardando || borrando" (click)="solicitarBorrado(cliente)" [attr.aria-label]="'Borrar a ' + cliente.nombre + ' ' + cliente.apellido">Borrar</button>
+                  @if (clienteABorrar?.idCliente === cliente.idCliente) {
+                    <div class="confirmacion-borrado" role="group" aria-label="Confirmar eliminación de cliente">
+                      <p><strong>¿Borrar a {{ cliente.nombre }} {{ cliente.apellido }}?</strong></p>
+                      <p>ID {{ cliente.idCliente }} · Esta acción es definitiva. Solo se permite si no tiene facturas asociadas.</p>
+                      <button class="danger-solid" type="button" [disabled]="borrando || guardando" (click)="borrarCliente()">{{ borrando ? 'Borrando...' : 'Confirmar borrado' }}</button>
+                      <button class="secondary" type="button" [disabled]="borrando" (click)="clienteABorrar = null">Cancelar</button>
+                    </div>
+                  }
+                </td>
+              }
+            </tr>
+          } @empty {
+            <tr><td class="empty" [attr.colspan]="auth.puedeBorrarClientes ? 6 : 5">{{ cargando ? 'Cargando clientes...' : 'No hay clientes para mostrar.' }}</td></tr>
           }
-        </select>
-        <button type="submit">{{ guardando ? 'Guardando...' : 'Guardar cliente' }}</button>
-      </fieldset>
-    </form>
+        </tbody>
+      </table>
+    </div>
   </section>
-}
-@if (mensaje) { <p role="status">{{ mensaje }}</p> }
-@if (error) { <p role="alert">{{ error }}</p> }
-@if (cargando) { <p>Cargando clientes...</p> }
-
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Nombre</th>
-      <th>Apellido</th>
-      <th>DNI</th>
-      <th>Situación fiscal</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    @for (cliente of clients; track cliente.idCliente) {
-      <tr>
-        <td>{{ cliente.idCliente }}</td>
-        <td>{{ cliente.nombre }}</td>
-        <td>{{ cliente.apellido }}</td>
-        <td>{{ cliente.dni }}</td>
-        <td>{{ cliente.situacionFiscal }}</td>
-      </tr>
-    } @empty {
-      <tr>
-        <td colspan="5">{{ cargando ? 'Cargando...' : 'No hay clientes para mostrar.' }}</td>
-      </tr>
-    }
-  </tbody>
-</table>
+  <p class="page-footer">Mi Empresa · Directorio comercial</p>
+</main>

@@ -1,12 +1,70 @@
-<h1>Nuestras sucursales</h1>
-
-<ul>
-  @for (s of suc; track s.idSucursal) {
-    <li>
-      <strong>{{ s.nombre }}</strong>
-      — {{ s.ciudad }}
-      — Dirección: {{ s.direccion }}
-      — Empleados: {{ s.cantempleado }}
-    </li>
+<main class="page">
+  <div class="page-heading">
+    <div><p class="eyebrow">Nuestra presencia</p><h1>Sucursales</h1><p>Ubicaciones y equipos que forman parte de nuestra empresa.</p></div>
+    @if (!cargando) { <span class="badge">{{ suc.length }} sucursales</span> }
+  </div>
+  @if (auth.puedeGestionarSucursales) {
+    <details class="entry-panel">
+      <summary>＋ Nueva sucursal</summary>
+      <form [formGroup]="form" (ngSubmit)="crearSucursal()">
+        <fieldset [disabled]="guardando || cargando || borrando">
+          <legend>Completá la información de la nueva sucursal.</legend>
+          <div class="form-grid">
+            <div><label for="nombre-sucursal">Nombre</label>
+              <input id="nombre-sucursal" formControlName="nombre" maxlength="50" placeholder="Nombre de la sucursal">
+              @if (form.controls.nombre.touched && form.controls.nombre.invalid) { <small class="field-error">Ingresá un nombre de hasta 50 caracteres.</small> }
+            </div>
+            <div><label for="ciudad-sucursal">Ciudad</label>
+              <input id="ciudad-sucursal" formControlName="ciudad" maxlength="50" placeholder="Ciudad">
+              @if (form.controls.ciudad.touched && form.controls.ciudad.invalid) { <small class="field-error">Ingresá una ciudad de hasta 50 caracteres.</small> }
+            </div>
+            <div><label for="direccion-sucursal">Dirección</label>
+              <input id="direccion-sucursal" formControlName="direccion" maxlength="50" placeholder="Calle y número">
+              @if (form.controls.direccion.touched && form.controls.direccion.invalid) { <small class="field-error">Ingresá una dirección de hasta 50 caracteres.</small> }
+            </div>
+            <div><label for="empleados-sucursal">Cantidad de empleados</label>
+              <input id="empleados-sucursal" type="number" min="0" max="2147483647" step="1" formControlName="cantempleado">
+              @if (form.controls.cantempleado.touched && form.controls.cantempleado.invalid) { <small class="field-error">Ingresá una cantidad entera mayor o igual a cero.</small> }
+            </div>
+          </div>
+          <div class="form-actions"><button type="submit">{{ guardando ? 'Guardando...' : 'Guardar sucursal' }}</button></div>
+        </fieldset>
+      </form>
+    </details>
   }
-</ul>
+  @if (mensaje) { <p class="notice success" role="status">{{ mensaje }}</p> }
+  @if (error) { <p class="notice error" role="alert">{{ error }}</p> }
+  <section class="panel" aria-labelledby="red-sucursales">
+    <div class="panel-heading"><div><h2 id="red-sucursales">Nuestra red de sucursales</h2><p>Información de contacto y personal de cada ubicación.</p></div><span class="badge">Ubicaciones</span></div>
+    <p class="scroll-hint">Deslizá la tabla para ver toda la información →</p>
+    <div class="table-scroll" tabindex="0" role="region" aria-label="Tabla de sucursales">
+      <table>
+        <thead><tr><th scope="col">Sucursal</th><th scope="col">Ciudad</th><th scope="col">Dirección</th><th scope="col" class="numeric">Empleados</th>@if (auth.puedeGestionarSucursales) { <th scope="col">Acciones</th> }</tr></thead>
+        <tbody>
+          @for (s of suc; track s.idSucursal) {
+            <tr>
+              <td><div class="branch-name"><span class="branch-symbol" aria-hidden="true">{{ s.nombre.charAt(0) }}</span><span><strong>{{ s.nombre }}</strong><small>Sucursal #{{ s.idSucursal }}</small></span></div></td>
+              <td>{{ s.ciudad }}</td><td class="muted">{{ s.direccion }}</td><td class="numeric">{{ s.cantempleado }}</td>
+              @if (auth.puedeGestionarSucursales) {
+                <td>
+                  <button class="danger small-button" type="button" [disabled]="guardando || borrando" (click)="solicitarBorrado(s)" [attr.aria-label]="'Borrar sucursal ' + s.nombre">Borrar</button>
+                  @if (sucursalABorrar?.idSucursal === s.idSucursal) {
+                    <div class="confirmacion-borrado" role="group" aria-label="Confirmar eliminación de sucursal">
+                      <p><strong>¿Borrar la sucursal {{ s.nombre }}?</strong></p>
+                      <p>ID {{ s.idSucursal }} · Esta acción es definitiva. Solo se permite si no tiene facturas asociadas.</p>
+                      <button class="danger-solid" type="button" [disabled]="guardando || borrando" (click)="borrarSucursal()">{{ borrando ? 'Borrando...' : 'Confirmar borrado' }}</button>
+                      <button class="secondary" type="button" [disabled]="borrando" (click)="sucursalABorrar = null">Cancelar</button>
+                    </div>
+                  }
+                </td>
+              }
+            </tr>
+          } @empty {
+            <tr><td class="empty" [attr.colspan]="auth.puedeGestionarSucursales ? 5 : 4">{{ cargando ? 'Cargando sucursales...' : 'No hay sucursales para mostrar.' }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <p class="page-footer">Mi Empresa · Red de sucursales</p>
+</main>

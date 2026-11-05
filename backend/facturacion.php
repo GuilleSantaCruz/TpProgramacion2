@@ -58,8 +58,16 @@ if ($accion === 'logout') {
   setcookie(session_name(), '', ['expires' => time() - 3600, 'path' => '/', 'httponly' => true, 'samesite' => 'Lax']);
   responder(['mensaje' => 'Sesión cerrada']);
 }
-if ($accion === 'crearCliente') {
-  if (!in_array($_SESSION['usuario'], ['10', '11'], true)) responder(['error' => 'No tenés permiso para crear clientes.'], 403);
+$permisosEscritura = [
+  'crearCliente' => ['10', '11'],
+  'borrarCliente' => ['10', '11'],
+  'crearSucursal' => ['11'],
+  'borrarSucursal' => ['11']
+];
+if (isset($permisosEscritura[$accion])) {
+  if (!in_array($_SESSION['usuario'], $permisosEscritura[$accion], true)) {
+    responder(['error' => 'No tenés permiso para realizar esta operación.'], 403);
+  }
   $entrada = leerJson();
   verificarToken();
 } elseif ($_SERVER['REQUEST_METHOD'] !== 'GET') {
@@ -202,10 +210,71 @@ function obtenerClientes($conn): array
   return $clientes;
 }
 
-$accion = $_GET['accion'] ?? 'sucursales';
+// Los nombres SQL salen de esta lista fija, nunca de los datos de la petición.
+function borrarSinFacturas(mysqli $conn, string $tipo, int $id): array
+{
+  [$tabla, $clave, $referencia] = $tipo === 'cliente'
+    ? ['cliente', 'idCliente', 'IdCliente']
+    : ['sucursal', 'idSucursal', 'idSucursal'];
+  $conn->begin_transaction();
+  try {
+    $consulta = $conn->prepare("SELECT $clave FROM $tabla WHERE $clave = ? FOR UPDATE");
+    $consulta->bind_param('i', $id);
+    $consulta->execute();
+    $existe = $consulta->get_result()->num_rows > 0;
+    $consulta->close();
+    if (!$existe) {
+      $conn->rollback();
+      responder(['error' => 'El registro ya no existe. Recargá la lista.'], 404);
+    }
+    $consulta = $conn->prepare("SELECT NroFactura FROM facturas WHERE $referencia = ? LIMIT 1");
+    $consulta->bind_param('i', $id);
+    $consulta->execute();
+    $tieneFacturas = $consulta->get_result()->num_rows > 0;
+    $consulta->close();
+    if ($tieneFacturas) {
+      $conn->rollback();
+      responder(['error' => 'No se puede borrar: tiene facturas asociadas. Se conserva el historial de ventas.'], 409);
+    }
+    $consulta = $conn->prepare("DELETE FROM $tabla WHERE $clave = ?");
+    $consulta->bind_param('i', $id);
+    $consulta->execute();
+    $consulta->close();
+    $conn->commit();
+    return ['mensaje' => 'Registro eliminado de la base de datos.', 'id' => $id];
+  } catch (Throwable $error) {
+    $conn->rollback();
+    throw $error;
+  }
+}
 
 try {
 switch ($accion) {
+  case 'crearSucursal':
+    $nombre = is_string($entrada['nombre'] ?? null) ? trim($entrada['nombre']) : '';
+    $ciudad = is_string($entrada['ciudad'] ?? null) ? trim($entrada['ciudad']) : '';
+    $direccion = is_string($entrada['direccion'] ?? null) ? trim($entrada['direccion']) : '';
+    $empleados = filter_var($entrada['cantempleado'] ?? null, FILTER_VALIDATE_INT,
+      ['options' => ['min_range' => 0, 'max_range' => 2147483647]]);
+    if ($nombre === '' || $ciudad === '' || $direccion === '' || mb_strlen($nombre) > 50
+        || mb_strlen($ciudad) > 50 || mb_strlen($direccion) > 50 || $empleados === false) {
+      responder(['error' => 'Completá nombre, ciudad y dirección (hasta 50 caracteres) y una cantidad entera de empleados mayor o igual a cero.'], 422);
+    }
+    $consulta = $conn->prepare('INSERT INTO sucursal (nombre, ciudad, direccion, cantempleado) VALUES (?, ?, ?, ?)');
+    $consulta->bind_param('sssi', $nombre, $ciudad, $direccion, $empleados);
+    $consulta->execute();
+    $datos = ['idSucursal' => $conn->insert_id, 'nombre' => $nombre, 'ciudad' => $ciudad,
+      'direccion' => $direccion, 'cantempleado' => $empleados];
+    $consulta->close();
+    http_response_code(201);
+    break;
+  case 'borrarCliente':
+  case 'borrarSucursal':
+    $id = filter_var($entrada['id'] ?? null, FILTER_VALIDATE_INT,
+      ['options' => ['min_range' => 1, 'max_range' => 2147483647]]);
+    if ($id === false) responder(['error' => 'El identificador debe ser un entero positivo.'], 422);
+    $datos = borrarSinFacturas($conn, $accion === 'borrarCliente' ? 'cliente' : 'sucursal', $id);
+    break;
   case 'crearCliente':
     $nombre = is_string($entrada['nombre'] ?? null) ? trim($entrada['nombre']) : '';
     $apellido = is_string($entrada['apellido'] ?? null) ? trim($entrada['apellido']) : '';
@@ -254,6 +323,7 @@ switch ($accion) {
 }
 } catch (mysqli_sql_exception $error) {
   error_log($error->getMessage());
+  if ($error->getCode() === 1451) responder(['error' => 'No se puede borrar: el registro tiene datos asociados.'], 409);
   responder(['error' => 'No se pudo completar la operación en la base de datos.'], 500);
 }
 

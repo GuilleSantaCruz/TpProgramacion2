@@ -26,7 +26,7 @@ no confía en una categoría incluida en el formulario de clientes.
 - `src/app/auth/auth.service.ts`: peticiones de login, sesión y logout. Conserva
   BehaviorSubject para actualizar el menú, como en el ejemplo del profesor.
 - `src/app/auth/auth.guard.ts`: consulta la sesión PHP para decidir si permite
-  navegar. Jefe está reservado a 10 y 11.
+  navegar. Las acciones disponibles se muestran dentro de cada sección según la categoría.
 - `src/app/components/login/`: formulario reactivo de ingreso y mensajes de error.
 - `src/app/components/clientes/`: formulario reactivo de alta, validación,
   indicador de guardado y listado.
@@ -52,17 +52,39 @@ que obtuvo el formulario. Las consultas preparadas separan los datos del SQL.
 ## Estado actual de permisos
 
 - 0 a 9: consultar sucursales, clientes y ventas.
-- 10 y 11: las mismas consultas y crear clientes.
-- 10 y 11: pantalla Jefe de demostración.
+- 10 y 11: las mismas consultas, crear clientes y borrar clientes sin facturas.
+- Solo 11: crear sucursales y borrar sucursales sin facturas.
+- El menú contiene Inicio, Sucursales, Clientes y Ventas. La pantalla Jefe de
+  demostración se retiró; los permisos se aplican en los formularios y en PHP.
 
-Editar clientes, crear sucursales, gestionar ítems y crear facturas son siguientes
+Editar clientes, gestionar ítems y crear facturas son siguientes
 etapas; todavía no están implementadas.
+
+## Alta de sucursales y eliminaciones
+
+En Sucursales, el superusuario completa nombre, ciudad, dirección (hasta 50
+caracteres cada uno) y cantidad entera de empleados mayor o igual a cero. MySQL
+genera el identificador. La sucursal aparece en ventas con meses en cero hasta
+que tenga facturas.
+
+Los botones Borrar abren una confirmación junto al registro con su nombre e ID.
+Cancelar no envía ninguna petición. Confirmar envía un POST con el identificador
+y el token de sesión. PHP revisa los permisos independientemente de la interfaz.
+
+El borrado es físico (DELETE), pero solo si no existen facturas asociadas, de
+cualquier año o estado. Se bloquea el registro dentro de una transacción antes
+de consultar referencias y eliminar. Las claves foráneas de MySQL protegen además
+las relaciones. Si tiene facturas se responde 409; si ya no existe, 404. La lista
+Angular cambia únicamente después de recibir la confirmación del servidor.
 
 ## Comprobaciones
 
 - `npm run build`
-- `npm test -- --watch=false --include=src/app/auth/auth.spec.ts`
+- `npm test -- --watch=false --include=src/app/auth/*.spec.ts`
 - Integración real: iniciar PHP en el puerto 8011 con `-t backend` y ejecutar
   `& "C:\xampp\php\php.exe" tests/clientes-api.php`. Crea dos clientes temporales,
   verifica permisos y persistencia, y elimina únicamente esos registros al terminar.
   Los identificadores autoincrementales pueden avanzar por esas pruebas.
+- `tests/gestion-api.php`, con el mismo servidor de prueba en 8011, comprueba
+  altas, permisos, eliminación y rechazo por facturas asociadas. Solo utiliza
+  un cliente, una sucursal y una factura temporales propios y los limpia al terminar.

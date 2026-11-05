@@ -48,6 +48,7 @@ try {
     [, $lista] = pedir('clientes');
     $encontrados = array_values(array_filter($lista, fn($fila) => $fila['idCliente'] === $nuevo['idCliente']));
     comprobar(count($encontrados) === 1 && $encontrados[0]['nombre'] === $nombre, 'Nueva consulta devuelve el cliente persistido');
+    comprobar(pedir('borrarCliente', ['id' => $nuevo['idCliente']], $sesion['csrf'])[0] === 200, "Categoría $usuario borra su cliente de prueba sin facturas");
     comprobar(pedir('logout', [], $sesion['csrf'])[0] === 200, 'Logout confirmado');
     comprobar(pedir('clientes')[0] === 401, 'Sesión cerrada no accede a los datos');
   }

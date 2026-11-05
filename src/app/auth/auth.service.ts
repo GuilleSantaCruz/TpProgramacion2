@@ -24,6 +24,14 @@ export class AuthService {
     return ['10', '11'].includes(this.usuarioActual);
   }
 
+  get puedeBorrarClientes(): boolean {
+    return ['10', '11'].includes(this.usuarioActual);
+  }
+
+  get puedeGestionarSucursales(): boolean {
+    return this.usuarioActual === '11';
+  }
+
   get cabecerasSesion() { return { 'X-CSRF-Token': this.csrf }; }
 
   private actualizar(sesion: Sesion): void {

@@ -1,4 +1,27 @@
-.inicio {
-  text-align: center;
-  padding: 80px;
-}
+.home { padding-top: 48px; }
+.welcome { display: grid; grid-template-columns: 1.3fr 1fr; align-items: center; gap: 64px; padding: 38px 0 56px; }
+.welcome h1 { font-size: clamp(32px, 3.5vw, 48px); letter-spacing: -1.8px; line-height: 1.18; }
+.welcome h1 span { color: #5d748a; font-weight: 400; }
+.intro { color: var(--muted); font-size: 15px; margin: 24px 0 28px; }
+.welcome .button { gap: 24px; }
+.welcome-visual { background: #eaf0f5; border: 1px solid #dce5ed; border-radius: 18px; padding: 30px; transform: rotate(-2deg); }
+.visual-label { font-size: 10px; letter-spacing: 1.5px; font-weight: 650; color: #55718c; display: flex; align-items: center; gap: 8px; }
+.status-dot { width: 7px; height: 7px; background: #5d8773; border-radius: 50%; }
+.visual-title { margin: 20px 0; font-size: 24px; letter-spacing: -.6px; }
+.visual-grid { display: flex; gap: 8px; }
+.visual-grid span { border: 1px solid #cedce8; background: #f4f7fa; padding: 7px 12px; border-radius: 6px; font-size: 10px; color: #48647e; }
+.welcome-visual svg { display: block; width: 100%; height: 140px; margin: 18px 0; }
+.welcome-visual small { color: #687e90; font-size: 11px; }
+.section-label { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-top: 1px solid var(--line); padding-top: 32px; margin-bottom: 22px; }
+.section-label h2 { font-size: 18px; } .section-label > span { font-size: 12px; color: var(--muted); }
+.module-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+.module-card { position: relative; padding: 28px; border: 1px solid var(--line); border-radius: 12px; background: white; text-decoration: none; transition: border-color .15s, box-shadow .15s; }
+.module-card:hover { border-color: #a9bed1; box-shadow: 0 6px 22px #223d5710; }
+.module-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 10px; background: #f0f4f8; color: var(--brand); margin-bottom: 24px; }
+.module-icon svg { width: 24px; height: 24px; }
+.module-number { position: absolute; right: 28px; top: 38px; font-size: 12px; color: #a6b2be; }
+.module-card h3 { margin: 0 0 12px; }
+.module-card p { color: var(--muted); font-size: 13px; min-height: 64px; margin-bottom: 24px; }
+.module-link { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--brand); }
+@media (max-width: 900px) { .welcome { gap: 32px; } .module-card { padding: 22px; } }
+@media (max-width: 700px) { .welcome { grid-template-columns: 1fr; padding: 12px 0 32px; } .welcome-visual { display: none; } .module-grid { grid-template-columns: 1fr; gap: 14px; } .module-card p { min-height: 0; } .section-label { align-items: flex-start; flex-direction: column; gap: 4px; } }

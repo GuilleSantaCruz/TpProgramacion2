@@ -1,31 +1,27 @@
 <main class="login-page">
-  <section class="login-card" aria-labelledby="login-title">
-    <p class="marca">Mi Empresa</p>
-    <h1 id="login-title">Iniciar sesión</h1>
-    <p>Completá tus datos para ingresar.</p>
-    <form [formGroup]="form" (ngSubmit)="onSubmit()">
-      <label for="usuario">Usuario / categoría</label>
-      <input id="usuario" type="text" inputmode="numeric" autocomplete="username"
-        formControlName="userName" aria-describedby="usuario-ayuda">
-      @if (form.controls.userName.touched && form.controls.userName.invalid) {
-        <p class="error" role="alert">Ingresá un número del 0 al 11, sin ceros iniciales.</p>
-      }
-      <label for="clave">Contraseña</label>
-      <input id="clave" type="password" autocomplete="current-password" formControlName="password">
-      @if (form.controls.password.touched && form.controls.password.invalid) {
-        <p class="error" role="alert">La contraseña es obligatoria.</p>
-      }
-      @if (error) { <p class="error" role="alert">{{ error }}</p> }
-      <button type="submit" [disabled]="enviando">{{ enviando ? 'Ingresando...' : 'Ingresar' }}</button>
-    </form>
-    <aside id="usuario-ayuda">
-      <strong>Login simulado de clase</strong>
-      <ul>
-        <li>0 a 9: usuario normal</li>
-        <li>10: administrador</li>
-        <li>11: superusuario</li>
-      </ul>
-      <p>Usá cualquier contraseña no vacía. La sesión se mantiene al recargar; usá «Cerrar sesión» para salir.</p>
-    </aside>
+  <section class="login-intro" aria-label="Mi Empresa">
+    <a class="login-brand" href="/"><span class="brand-mark" aria-hidden="true">M.</span> Mi Empresa</a>
+    <div><p class="eyebrow">Gestión empresarial</p><h2>Tu empresa.<br>Todo en un lugar.</h2><p>Conectá la información de tus sucursales,<br>clientes y ventas en un solo espacio.</p></div>
+    <span class="intro-footer">Organización para el día a día.</span>
+  </section>
+  <section class="login-area">
+    <div class="login-card" aria-labelledby="login-title">
+      <p class="eyebrow">Bienvenido</p><h1 id="login-title">Iniciar sesión</h1><p class="login-description">Ingresá para acceder a tu espacio de trabajo.</p>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <label for="usuario">Usuario</label>
+        <input id="usuario" type="text" inputmode="numeric" autocomplete="username" formControlName="userName" placeholder="Ingresá tu usuario" aria-describedby="usuario-ayuda">
+        @if (form.controls.userName.touched && form.controls.userName.invalid) { <p class="field-error" role="alert">Ingresá un número del 0 al 11, sin ceros iniciales.</p> }
+        <label for="clave">Contraseña</label>
+        <input id="clave" type="password" autocomplete="current-password" formControlName="password" placeholder="Ingresá tu contraseña">
+        @if (form.controls.password.touched && form.controls.password.invalid) { <p class="field-error" role="alert">La contraseña es obligatoria.</p> }
+        @if (error) { <p class="notice error" role="alert">{{ error }}</p> }
+        <button type="submit" [disabled]="enviando">{{ enviando ? 'Ingresando...' : 'Ingresar' }} <span aria-hidden="true">→</span></button>
+      </form>
+      <details class="demo-help" id="usuario-ayuda">
+        <summary>Acceso de demostración</summary>
+        <p>Usuarios 0–9: consulta · 10: administrador · 11: superusuario.</p><p>Usá cualquier contraseña no vacía. Para salir, elegí «Salir» en el menú.</p>
+      </details>
+      <p class="login-footer">Mi Empresa · Gestión empresarial</p>
+    </div>
   </section>
 </main>

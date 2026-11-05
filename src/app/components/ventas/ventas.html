@@ -1,92 +1,55 @@
-<h1>Ventas mensuales por sucursal</h1>
-
-<label for="anio">Año:</label>
-
-<input
-  id="anio"
-  type="number"
-  min="1000"
-  max="9999"
-  step="1"
-  [value]="anio"
-  [disabled]="cargando"
-  #entradaAnio
-/>
-
-<button [disabled]="cargando" (click)="cambiarAnio(entradaAnio.value)">Consultar</button>
-
-@if (cargando) {
-  <p>Cargando ventas...</p>
-} @else if (error) {
-  <p>{{ error }}</p>
-} @else if (respuesta; as datos) {
-  <table>
-    <caption>
-      Totales de
-      {{
-        datos.anio
-      }}
-      — importes sin agregar IVA, incluyendo todos los estados
-    </caption>
-
-    <thead>
-      <tr>
-        <th scope="col">Mes</th>
-
-        @for (sucursal of datos.sucursales; track sucursal.idSucursal) {
-          <th scope="col">{{ sucursal.nombre }}</th>
-        }
-      </tr>
-    </thead>
-
-    <tbody>
-      @for (mes of meses; track $index; let i = $index) {
-        <tr>
-          <th scope="row">{{ mes }}</th>
-
-          @for (sucursal of datos.sucursales; track sucursal.idSucursal) {
-            <td>
-              {{ datos.ventas[sucursal.idSucursal][i + 1] | number: '1.2-2' }}
-            </td>
+<main class="page">
+  <div class="page-heading">
+    <div><p class="eyebrow">Resultados de la empresa</p><h1>Ventas</h1><p>Una mirada a los resultados de cada mes y cada sucursal.</p></div>
+    <div class="year-filter">
+      <label for="anio">Período anual</label>
+      <div><input id="anio" type="number" min="1000" max="9999" step="1" [value]="anio" [disabled]="cargando" #entradaAnio>
+      <button [disabled]="cargando" (click)="cambiarAnio(entradaAnio.value)">Consultar</button></div>
+    </div>
+  </div>
+  @if (cargando) {
+    <p class="notice" role="status">Cargando ventas...</p>
+  } @else if (error) {
+    <p class="notice error" role="alert">{{ error }}</p>
+  } @else if (respuesta; as datos) {
+    <section class="panel panel-grafico">
+      <div class="panel-heading">
+        <div><p class="chart-eyebrow">ANÁLISIS ANUAL · {{ datos.anio }}</p><h2 id="titulo-grafico">{{ titulosGrafico[tipoGrafico] }}</h2></div>
+        <div class="controles-grafico">
+          <label for="tipo-grafico" class="sr-only">Tipo de gráfico</label>
+          <select id="tipo-grafico" [value]="tipoGrafico" #selectorGrafico (change)="cambiarGrafico(selectorGrafico.value)">
+            <option value="barras">Barras agrupadas</option><option value="apiladas">Barras apiladas</option><option value="lineas">Líneas</option>
+          </select>
+        </div>
+      </div>
+      <div class="chart-body">
+        <ul class="leyenda-grafico">
+          @for (sucursal of datos.sucursales; track sucursal.idSucursal; let i = $index) {
+            <li><span class="color-sucursal" [style.background-color]="colores[i % colores.length]" aria-hidden="true"></span>{{ sucursal.nombre }}</li>
           }
-        </tr>
-      }
-    </tbody>
-  </table>
-  <section class="panel-grafico">
-    <div class="controles-grafico">
-      <label for="tipo-grafico">Tipo de gráfico</label>
-
-      <select
-        id="tipo-grafico"
-        [value]="tipoGrafico"
-        #selectorGrafico
-        (change)="cambiarGrafico(selectorGrafico.value)"
-      >
-        <option value="barras">Barras agrupadas</option>
-        <option value="apiladas">Barras apiladas</option>
-        <option value="lineas">Líneas</option>
-      </select>
-    </div>
-
-    <h2 id="titulo-grafico">{{ titulosGrafico[tipoGrafico] }} — {{ datos.anio }}</h2>
-    <ul class="leyenda-grafico">
-      @for (sucursal of datos.sucursales; track sucursal.idSucursal; let i = $index) {
-        <li>
-          <span
-            class="color-sucursal"
-            [style.background-color]="colores[i % colores.length]"
-            aria-hidden="true"
-          ></span>
-
-          {{ sucursal.nombre }}
-        </li>
-      }
-    </ul>
-    <div class="contenedor-canvas">
-      <canvas #graficoVentas width="1100" height="500" role="img" aria-labelledby="titulo-grafico">
-        Los valores del gráfico están disponibles en la tabla de ventas.
-      </canvas>
-    </div>
-  </section>
-}
+        </ul>
+        <div class="contenedor-canvas" tabindex="0" role="region" aria-label="Gráfico de ventas, desplazable horizontalmente">
+          <canvas #graficoVentas width="1100" height="500" role="img" aria-labelledby="titulo-grafico">Los valores del gráfico están disponibles en la tabla de ventas.</canvas>
+        </div>
+        <p class="scroll-hint">Deslizá el gráfico para ver todos los meses →</p>
+        <p class="chart-note">Importes sin agregar IVA · Incluye todos los estados de factura</p>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="panel-heading"><div><h2>Detalle mensual</h2><p>Comparación de importes por sucursal.</p></div><span class="badge">{{ datos.anio }}</span></div>
+      <p class="scroll-hint">Deslizá la tabla para ver todas las sucursales →</p>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Tabla de ventas mensuales">
+        <table>
+          <caption>Totales de {{ datos.anio }} · Importes sin agregar IVA, incluyendo todos los estados.</caption>
+          <thead><tr><th scope="col">Mes</th>@for (sucursal of datos.sucursales; track sucursal.idSucursal) { <th scope="col" class="numeric">{{ sucursal.nombre }}</th> }</tr></thead>
+          <tbody>
+            @for (mes of meses; track $index; let i = $index) {
+              <tr><th scope="row">{{ mes }}</th>@for (sucursal of datos.sucursales; track sucursal.idSucursal) { <td class="numeric">{{ datos.ventas[sucursal.idSucursal][i + 1] | number: '1.2-2' }}</td> }</tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+  <p class="page-footer">Mi Empresa · Información comercial</p>
+</main>

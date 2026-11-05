@@ -8,13 +8,3 @@ export const authGuard: CanActivateFn = () => {
   const router = inject(Router);
   return auth.cargarSesion().pipe(map(sesion => sesion.usuario !== '' || router.createUrlTree(['/login'])));
 };
-
-// También comprobamos la categoría si se escribe /Jefe directamente.
-export const superiorGuard: CanActivateFn = () => {
-  const auth = inject(AuthService);
-  const router = inject(Router);
-  return auth.cargarSesion().pipe(map(({ usuario }) => {
-    if (usuario === '') return router.createUrlTree(['/login']);
-    return usuario === '10' || usuario === '11' || router.createUrlTree(['/']);
-  }));
-};

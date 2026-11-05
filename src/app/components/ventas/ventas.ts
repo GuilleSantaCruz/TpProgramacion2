@@ -93,7 +93,7 @@ set graficoVentas(elemento: ElementRef<HTMLCanvasElement> | undefined) {
   this.canvas = elemento?.nativeElement;
   this.dibujarGrafico();
 }
-colores = ['#2563eb', '#e87924', '#16a34a', '#9333ea', '#dc2626'];
+colores = ['#355f84', '#4f8a79', '#b7854c', '#8b77a3', '#c37172'];
 
 private dibujarGrafico(): void {
   const canvas = this.canvas;

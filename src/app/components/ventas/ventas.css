@@ -1,73 +1,15 @@
-body {
-  height: 80vh;
-  background-image: linear-gradient(0deg, rgba(240, 248, 250, 0.5), rgba(22, 6, 65, 0.5));
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center center;
-}
-h1 {
-  text-align: center;
-  margin-top: 100px;
-  font-size: 80px;
-  color: rgb(47, 6, 112);
-}
-
-.panel-grafico {
-  margin-top: 32px;
-  padding: 24px;
-  border: 1px solid #dce3ed;
-  border-radius: 16px;
-  background: #fff;
-}
-
-.controles-grafico {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-}
-
-.controles-grafico label {
-  font-weight: 600;
-}
-
-.controles-grafico select {
-  max-width: 100%;
-  padding: 10px 14px;
-  border: 1px solid #aab7ca;
-  border-radius: 8px;
-  background: #fff;
-  font: inherit;
-}
-
-.contenedor-canvas {
-  overflow-x: auto;
-}
-
-canvas {
-  display: block;
-  width: 100%;
-  min-width: 760px;
-  height: auto;
-}
-
-.leyenda-grafico {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 20px;
-  padding: 0;
-  list-style: none;
-}
-
-.leyenda-grafico li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.color-sucursal {
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-  flex-shrink: 0;
-}
+.year-filter { width: 242px; flex-shrink: 0; }
+.year-filter label { color: var(--muted); font-size: 12px; }
+.year-filter > div { display: flex; gap: 8px; }
+.year-filter input { width: 112px; font-variant-numeric: tabular-nums; }
+.controles-grafico select { width: auto; font-size: 13px; min-height: 40px; background: #f9fafc; }
+.panel-heading p.chart-eyebrow { font-size: 10px; letter-spacing: 1.3px; color: var(--muted); margin: 0 0 8px; }
+.chart-body { padding: 24px 26px 12px; }
+.leyenda-grafico { display: flex; flex-wrap: wrap; gap: 12px 22px; margin: 0 0 20px; padding: 0; list-style: none; }
+.leyenda-grafico li { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); }
+.color-sucursal { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+.contenedor-canvas { overflow-x: auto; }
+canvas { display: block; width: 100%; min-width: 760px; height: auto; }
+.chart-note { font-size: 11px; color: var(--muted); margin: 12px 0 4px; }
+table { min-width: 700px; }
+@media (max-width: 700px) { .year-filter { width: 100%; } .year-filter input { flex: 1; } .chart-body { padding: 18px 12px 12px; } .chart-note { padding: 0 6px; } }

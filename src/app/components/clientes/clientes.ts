@@ -17,6 +17,8 @@ export class ClientesComponent implements OnInit {
   protected auth = inject(AuthService);
   private fb = inject(FormBuilder);
   guardando = false;
+  borrando = false;
+  clienteABorrar: Cliente | null = null;
   cargando = false;
   mensaje = '';
   error = '';
@@ -30,7 +32,7 @@ export class ClientesComponent implements OnInit {
 
   crearCliente(): void {
     this.form.markAllAsTouched();
-    if (this.form.invalid || this.guardando || !this.auth.puedeCrearClientes) return;
+    if (this.form.invalid || this.guardando || this.borrando || this.cargando || !this.auth.puedeCrearClientes) return;
     this.guardando = true;
     this.mensaje = '';
     this.error = '';
@@ -54,6 +56,34 @@ export class ClientesComponent implements OnInit {
   }
 
   clients: Cliente[] = [];
+
+  solicitarBorrado(cliente: Cliente): void {
+    if (this.guardando || this.borrando || !this.auth.puedeBorrarClientes) return;
+    this.clienteABorrar = cliente;
+    this.error = '';
+    this.mensaje = '';
+  }
+
+  borrarCliente(): void {
+    const cliente = this.clienteABorrar;
+    if (!cliente || this.borrando || this.guardando || !this.auth.puedeBorrarClientes) return;
+    this.borrando = true;
+    this.error = '';
+    this.clientesService.borrarCliente(cliente.idCliente).subscribe({
+      next: () => {
+        this.clients = this.clients.filter(item => item.idCliente !== cliente.idCliente);
+        this.clienteABorrar = null;
+        this.borrando = false;
+        this.mensaje = `Cliente ${cliente.nombre} ${cliente.apellido} eliminado de la base de datos.`;
+        this.detector.markForCheck();
+      },
+      error: error => {
+        this.error = error.error?.error ?? 'No se pudo borrar el cliente. Intentá nuevamente.';
+        this.borrando = false;
+        this.detector.markForCheck();
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.cargando = true;
